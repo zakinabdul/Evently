@@ -145,7 +145,17 @@ export function RegisterEventPage() {
     }
 
     if (!event) {
-        return <div className="flex items-center justify-center min-h-screen text-red-500">{error || 'Event not found'}</div>
+        return (
+            <div className="flex flex-col items-center justify-center min-h-screen text-red-500 gap-4">
+                <p>{error || 'Event not found'}</p>
+                <div className="text-xs text-muted-foreground bg-gray-100 p-4 rounded text-left font-mono">
+                    <p>Debug Info:</p>
+                    <p>Slug param: {JSON.stringify(slug)}</p>
+                    <p>EventId param: {JSON.stringify(eventId)}</p>
+                    <p>Error details: {JSON.stringify(error)}</p>
+                </div>
+            </div>
+        )
     }
 
     if (success) {
