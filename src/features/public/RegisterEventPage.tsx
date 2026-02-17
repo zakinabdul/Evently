@@ -39,7 +39,7 @@ const registrationSchema = z.object({
 type RegistrationForm = z.infer<typeof registrationSchema>
 
 export function RegisterEventPage() {
-    const { eventId } = useParams<{ eventId: string }>()
+    const { eventId, slug } = useParams<{ eventId?: string; slug?: string }>()
     const [event, setEvent] = useState<EventDetails | null>(null)
     const [loading, setLoading] = useState(true)
     const [registering, setRegistering] = useState(false)
@@ -54,18 +54,24 @@ export function RegisterEventPage() {
     })
 
     useEffect(() => {
-        if (!eventId) return
+        if (!eventId && !slug) return
 
         const fetchEvent = async () => {
             try {
-                const { data, error } = await supabase
+                let query = supabase
                     .from('events')
                     .select(`
             *,
             organizer:profiles(organization_name, full_name)
           `)
-                    .eq('id', eventId)
-                    .single()
+
+                if (slug) {
+                    query = query.eq('slug', slug)
+                } else if (eventId) {
+                    query = query.eq('id', eventId)
+                }
+
+                const { data, error } = await query.single()
 
                 if (error) throw error
                 setEvent(data)
@@ -78,7 +84,7 @@ export function RegisterEventPage() {
         }
 
         fetchEvent()
-    }, [eventId])
+    }, [eventId, slug])
 
     const onSubmit = async (data: RegistrationForm) => {
         if (!event) return

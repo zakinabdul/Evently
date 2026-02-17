@@ -15,10 +15,11 @@ export function EventCard({ event }: EventCardProps) {
     const eventDate = new Date(`${event.start_date}T${event.start_time}`)
 
     const copyLink = () => {
-        const url = `${window.location.origin}/register/${event.id}`
+        const identifier = event.slug || event.id
+        const url = `${window.location.origin}/e/${identifier}`
         navigator.clipboard.writeText(url)
         // In a real app, show a toast here
-        alert('Link copied to clipboard!')
+        alert('Short link copied to clipboard!')
     }
 
     return (

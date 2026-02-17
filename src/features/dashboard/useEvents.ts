@@ -13,6 +13,7 @@ export type Event = {
     start_time: string
     current_registrations: number
     capacity: number
+    slug: string | null
 }
 
 export function useEvents() {

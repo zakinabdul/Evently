@@ -30,6 +30,7 @@ function App() {
 
                 {/* Public Event Routes */}
                 <Route path="/register/:eventId" element={<RegisterEventPage />} />
+                <Route path="/e/:slug" element={<RegisterEventPage />} />
 
                 {/* Catch all */}
                 <Route path="*" element={<Navigate to="/login" replace />} />

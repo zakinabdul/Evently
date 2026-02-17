@@ -13,6 +13,7 @@ import { useAuth } from '../auth/AuthContext'
 
 const createEventSchema = z.object({
     title: z.string().min(3, 'Title is required'),
+    slug: z.string().min(3, 'Custom link must be at least 3 characters').regex(/^[a-z0-9-]+$/, 'Only lowercase letters, numbers, and hyphens allowed').optional().or(z.literal('')),
     description: z.string().optional(),
     event_type: z.enum(['online', 'in-person']),
     location: z.string().min(1, 'Location/Link is required'),
@@ -44,9 +45,17 @@ export function CreateEventPage() {
         setError(null)
 
         try {
+            // Generate slug if empty
+            let slug = data.slug
+            if (!slug) {
+                // Simple random slug
+                slug = Math.random().toString(36).substring(2, 8)
+            }
+
             const { error } = await supabase.from('events').insert([
                 {
                     ...data,
+                    slug,
                     organizer_id: user.id
                 }
             ])
@@ -73,6 +82,16 @@ export function CreateEventPage() {
                             <Label htmlFor="title">Event Title</Label>
                             <Input id="title" placeholder="My Awesome Webinar" {...register('title')} />
                             {errors.title && <p className="text-sm text-red-500">{errors.title.message}</p>}
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="slug">Custom Link (Optional)</Label>
+                            <div className="flex items-center gap-2">
+                                <span className="text-sm text-muted-foreground whitespace-nowrap">{window.location.host}/e/</span>
+                                <Input id="slug" placeholder="my-event-name" {...register('slug')} />
+                            </div>
+                            <p className="text-xs text-muted-foreground">Leave empty to generate a random short link.</p>
+                            {errors.slug && <p className="text-sm text-red-500">{errors.slug.message}</p>}
                         </div>
 
                         <div className="space-y-2">
