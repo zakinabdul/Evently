@@ -1,10 +1,10 @@
 
 import { useEffect, useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Calendar, MapPin, Users, Clock, CheckCircle } from 'lucide-react'
+import { Calendar, MapPin, Clock, CheckCircle } from 'lucide-react'
 import { format } from 'date-fns'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -92,7 +92,7 @@ export function RegisterEventPage() {
             }
 
             // Check existing registration
-            const { data: existing, error: checkError } = await supabase
+            const { data: existing } = await supabase
                 .from('registrations')
                 .select('id')
                 .eq('event_id', event.id)

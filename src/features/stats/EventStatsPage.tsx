@@ -69,7 +69,7 @@ export function EventStatsPage() {
                                     fill="#8884d8"
                                     dataKey="value"
                                 >
-                                    {data.professionalStatusBreakdown.map((entry, index) => (
+                                    {data.professionalStatusBreakdown.map((_entry, index) => (
                                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                     ))}
                                 </Pie>

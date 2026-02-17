@@ -8,7 +8,7 @@ import { Link } from "react-router-dom"
 import { Plus } from "lucide-react"
 
 export function DashboardPage() {
-    const { user, signOut } = useAuth()
+    const { signOut } = useAuth()
     const { events, loading, error } = useEvents()
 
     return (
