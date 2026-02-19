@@ -150,7 +150,7 @@ export function EmailsTab({ eventId, eventTitle }: EmailsTabProps) {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{stats.sent}</div>
-                        <p className="text-xs text-muted-foreground">Total sent via Brevo</p>
+                        <p className="text-xs text-muted-foreground">Total sent</p>
                     </CardContent>
                 </Card>
                 <Card>
@@ -190,7 +190,7 @@ export function EmailsTab({ eventId, eventTitle }: EmailsTabProps) {
                 </CardHeader>
                 <CardContent>
                     <div className="space-y-4">
-                        {eventSettings?.send_24h_reminder ? (
+                        {eventSettings?.send_24h_reminder && (
                             <div className="flex items-center justify-between border-b pb-4">
                                 <div className="flex items-center gap-4">
                                     <div className="bg-primary/10 p-2 rounded-full">
@@ -202,19 +202,6 @@ export function EmailsTab({ eventId, eventTitle }: EmailsTabProps) {
                                     </div>
                                 </div>
                                 <span className="text-sm bg-green-100 text-green-700 px-2 py-1 rounded">Active</span>
-                            </div>
-                        ) : (
-                            <div className="flex items-center justify-between border-b pb-4 opacity-50">
-                                <div className="flex items-center gap-4">
-                                    <div className="bg-gray-100 p-2 rounded-full">
-                                        <Clock className="h-4 w-4 text-gray-400" />
-                                    </div>
-                                    <div>
-                                        <p className="font-medium">24-Hour Reminder</p>
-                                        <p className="text-sm text-muted-foreground">Not enabled for this event</p>
-                                    </div>
-                                </div>
-                                <span className="text-sm bg-gray-100 text-gray-700 px-2 py-1 rounded">Inactive</span>
                             </div>
                         )}
 
