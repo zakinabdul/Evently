@@ -96,7 +96,11 @@ FRONTEND_URL=http://localhost:5173
 
 To use the application, you'll need the necessary tables in Supabase (`profiles`, `events`, `registrations`). 
 
-> **Note on SQL Scripts:** The original SQL migration scripts are ignored via Git (stored locally in `supabase_sql_setup/`). If you are cloning this repository to build your own version, you will need to manually reconstruct the `events` and `registrations` tables with the appropriate foreign key columns and RLS policies on Supabase.
+A complete database migration file is provided in the root of the repository.
+1. Go to your Supabase project dashboard.
+2. Navigate to the **SQL Editor**.
+3. Create a new query, paste the contents of the `database_setup.sql` file included in this repository, and hit **Run**.
+This will instantly create all tables, establish the proper foreign key relationships, and set up Row Level Security (RLS) policies needed for the application to function.
 
 ### 5. Start the Development Servers
 

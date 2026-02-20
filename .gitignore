@@ -116,5 +116,3 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-# SQL Migration files (Ignored per organizational preference)
-supabase_sql_setup/
