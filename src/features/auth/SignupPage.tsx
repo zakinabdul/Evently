@@ -7,7 +7,6 @@ import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { supabase } from '@/lib/supabase'
 import { toast } from 'sonner'
 
@@ -77,47 +76,76 @@ export function SignupPage() {
     }
 
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle>Create an account</CardTitle>
-                <CardDescription>Enter your details to get started</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="fullName">Full Name</Label>
-                        <Input id="fullName" placeholder="John Doe" {...register('fullName')} />
-                        {errors.fullName && <p className="text-sm text-red-500">{errors.fullName.message}</p>}
+        <div className="space-y-8 animate-fade-in-up">
+            <div className="space-y-2 text-center lg:text-left">
+                <h1 className="text-3xl font-bold tracking-tight text-foreground">Create an account</h1>
+                <p className="text-muted-foreground">Enter your details below to get started</p>
+            </div>
+
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+                <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2 relative">
+                            <Label htmlFor="fullName" className="text-sm font-medium">Full Name</Label>
+                            <Input
+                                id="fullName"
+                                placeholder="John Doe"
+                                className="bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary h-12"
+                                {...register('fullName')}
+                            />
+                            {errors.fullName && <p className="text-xs text-red-500 absolute -bottom-5">{errors.fullName.message}</p>}
+                        </div>
+                        <div className="space-y-2 relative">
+                            <Label htmlFor="organizationName" className="text-sm font-medium">Organization</Label>
+                            <Input
+                                id="organizationName"
+                                placeholder="Acme Inc."
+                                className="bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary h-12"
+                                {...register('organizationName')}
+                            />
+                            {errors.organizationName && <p className="text-xs text-red-500 absolute -bottom-5">{errors.organizationName.message}</p>}
+                        </div>
                     </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="organizationName">Organization Name</Label>
-                        <Input id="organizationName" placeholder="Acme Inc." {...register('organizationName')} />
-                        {errors.organizationName && <p className="text-sm text-red-500">{errors.organizationName.message}</p>}
+
+                    <div className="space-y-2 relative pt-2">
+                        <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
+                        <Input
+                            id="email"
+                            type="email"
+                            placeholder="m@example.com"
+                            className="bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary h-12"
+                            {...register('email')}
+                        />
+                        {errors.email && <p className="text-xs text-red-500 absolute -bottom-5">{errors.email.message}</p>}
                     </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
-                        <Input id="email" type="email" placeholder="m@example.com" {...register('email')} />
-                        {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
+
+                    <div className="space-y-2 relative pt-2">
+                        <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+                        <Input
+                            id="password"
+                            type="password"
+                            className="bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary h-12"
+                            {...register('password')}
+                        />
+                        {errors.password && <p className="text-xs text-red-500 absolute -bottom-5">{errors.password.message}</p>}
                     </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="password">Password</Label>
-                        <Input id="password" type="password" {...register('password')} />
-                        {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>}
-                    </div>
-                    {error && <p className="text-sm text-red-500">{error}</p>}
-                    <Button type="submit" className="w-full" disabled={loading}>
-                        {loading ? 'Creating account...' : 'Create Account'}
-                    </Button>
-                </form>
-            </CardContent>
-            <CardFooter className="justify-center">
+                </div>
+
+                {error && <div className="p-3 text-sm text-red-500 bg-red-50 dark:bg-red-950/50 rounded-md border border-red-200 dark:border-red-900 mt-2">{error}</div>}
+
+                <Button type="submit" className="w-full h-12 text-md transition-all hover:-translate-y-0.5 mt-4" disabled={loading}>
+                    {loading ? 'Creating account...' : 'Create Account'}
+                </Button>
+            </form>
+
+            <div className="text-center">
                 <p className="text-sm text-muted-foreground">
                     Already have an account?{' '}
-                    <Link to="/login" className="text-primary hover:underline">
-                        Login
+                    <Link to="/login" className="text-primary font-semibold hover:underline">
+                        Sign in
                     </Link>
                 </p>
-            </CardFooter>
-        </Card>
+            </div>
+        </div>
     )
 }

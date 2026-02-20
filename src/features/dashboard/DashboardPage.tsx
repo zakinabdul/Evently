@@ -12,15 +12,15 @@ export function DashboardPage() {
     const { events, loading, error } = useEvents()
 
     return (
-        <div className="p-8 max-w-7xl mx-auto space-y-8">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="p-8 lg:p-12 max-w-7xl mx-auto space-y-10 animate-fade-in-up">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white/40 dark:bg-zinc-900/40 p-6 rounded-2xl border border-white/20 dark:border-white/5 shadow-sm backdrop-blur-md">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+                    <h1 className="text-4xl font-extrabold tracking-tight text-foreground">Dashboard</h1>
                     <p className="text-muted-foreground">Manage your events and view analytics.</p>
                 </div>
                 <div className="flex items-center gap-4">
-                    <Button variant="outline" onClick={() => signOut()}>Logout</Button>
-                    <Button asChild>
+                    <Button variant="ghost" onClick={() => signOut()} className="hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/50">Logout</Button>
+                    <Button asChild className="rounded-full shadow-lg shadow-primary/25 transition-all hover:-translate-y-0.5 hover:shadow-primary/40">
                         <Link to="/create-event">
                             <Plus className="mr-2 h-4 w-4" />
                             Create Event
@@ -33,26 +33,33 @@ export function DashboardPage() {
 
             {loading && <div>Loading events...</div>}
 
-            {error && <div className="text-red-500">Error: {error}</div>}
+            {error && <div className="p-4 bg-red-50/50 text-red-600 rounded-xl border border-red-100 backdrop-blur-sm">Error: {error}</div>}
 
             {!loading && !error && events.length === 0 && (
-                <div className="p-12 border rounded-lg border-dashed text-center space-y-4">
-                    <div className="mx-auto w-12 h-12 rounded-full bg-muted flex items-center justify-center">
-                        <Plus className="h-6 w-6 text-muted-foreground" />
+                <div className="p-16 border-2 rounded-3xl border-dashed border-primary/20 bg-primary/5 text-center space-y-6">
+                    <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                        <Plus className="h-8 w-8" />
                     </div>
-                    <h2 className="text-xl font-bold">No events yet</h2>
-                    <p className="text-muted-foreground">Get started by creating your first event.</p>
-                    <Button asChild>
+                    <div className="space-y-2">
+                        <h2 className="text-2xl font-bold text-foreground">No events yet</h2>
+                        <p className="text-muted-foreground max-w-sm mx-auto">Get started by creating your first event to see your dashboard come to life.</p>
+                    </div>
+                    <Button asChild size="lg" className="rounded-full shadow-lg shadow-primary/25 hover:-translate-y-0.5">
                         <Link to="/create-event">Create Event</Link>
                     </Button>
                 </div>
             )}
 
             {!loading && !error && events.length > 0 && (
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {events.map(event => (
-                        <EventCard key={event.id} event={event} />
-                    ))}
+                <div className="space-y-6">
+                    <h2 className="text-2xl font-bold tracking-tight">Your Upcoming Events</h2>
+                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                        {events.map((event, index) => (
+                            <div key={event.id} className="animate-fade-in-up" style={{ animationDelay: `${index * 50}ms` }}>
+                                <EventCard event={event} />
+                            </div>
+                        ))}
+                    </div>
                 </div>
             )}
         </div>

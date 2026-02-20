@@ -245,103 +245,148 @@ export function RegisterEventPage() {
     const eventDate = new Date(`${event.start_date}T${event.start_time}`)
 
     return (
-        <div className="min-h-screen bg-muted/20 py-12 px-4">
-            <div className="container mx-auto max-w-5xl grid lg:grid-cols-2 gap-8">
+        <div className="min-h-screen bg-background selection:bg-primary/30 font-sans">
+            {/* Hero Banner Section */}
+            <div className="w-full bg-zinc-950 text-white relative overflow-hidden">
+                {/* Background effects */}
+                <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] mix-blend-screen pointer-events-none"></div>
+                <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-purple-600/20 rounded-full blur-[100px] mix-blend-screen pointer-events-none"></div>
 
-                {/* Event Details */}
-                <div className="space-y-6">
-                    <div>
-                        <span className="inline-block px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium mb-4 capitalize">
+                <div className="container mx-auto max-w-6xl px-4 py-20 lg:py-28 relative z-10 animate-fade-in-up">
+                    <div className="max-w-3xl">
+                        <span className="inline-block px-4 py-1.5 bg-white/10 text-white rounded-full text-sm font-semibold mb-6 capitalize backdrop-blur-md border border-white/10 tracking-wide shadow-xl">
                             {event.event_type} Event
                         </span>
-                        <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-4">{event.title}</h1>
-                        <div className="text-xl text-muted-foreground">
-                            by {event.organizer?.organization_name || 'Organizer'}
+                        <h1 className="text-4xl md:text-5xl lg:text-7xl font-extrabold tracking-tight mb-6 leading-[1.1]">{event.title}</h1>
+                        <div className="text-xl md:text-2xl text-zinc-300 font-medium">
+                            Presented by <span className="text-white">{event.organizer?.organization_name || 'Organizer'}</span>
                         </div>
-                    </div>
-
-                    <div className="grid gap-4 text-muted-foreground">
-                        <div className="flex items-center gap-3">
-                            <Calendar className="h-5 w-5 text-primary" />
-                            <span className="text-lg">{format(eventDate, 'EEEE, MMMM d, yyyy')}</span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <Clock className="h-5 w-5 text-primary" />
-                            <span className="text-lg">{format(eventDate, 'h:mm a')}</span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <MapPin className="h-5 w-5 text-primary" />
-                            <span className="text-lg">{event.event_type === 'online' ? 'Online Event' : event.location}</span>
-                        </div>
-                    </div>
-
-                    <div className="prose dark:prose-invert max-w-none">
-                        <h3 className="text-xl font-semibold mb-2">About this event</h3>
-                        <p className="whitespace-pre-wrap">{event.description || 'No description provided.'}</p>
                     </div>
                 </div>
+            </div>
 
-                {/* Registration Form */}
-                <div>
-                    <Card className="sticky top-8">
-                        <CardHeader>
-                            <CardTitle>Register for this event</CardTitle>
-                            <CardDescription>
-                                {isFull ? 'This event is currently full.' : `${event.capacity - event.current_registrations} spots remaining`}
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            {isFull ? (
-                                <div className="p-4 bg-yellow-50 text-yellow-800 rounded-md border border-yellow-200">
-                                    Registration is closed because the event has reached its capacity.
+            <div className="container mx-auto max-w-6xl px-4 py-12 lg:py-16">
+                <div className="grid lg:grid-cols-[1fr_400px] gap-12 lg:gap-16 items-start relative">
+                    {/* Left Column: Event Details */}
+                    <div className="space-y-10 animate-fade-in-up delay-100">
+                        {/* Quick Info Bar */}
+                        <div className="flex flex-wrap gap-6 p-6 rounded-2xl bg-muted/40 border border-border">
+                            <div className="flex items-center gap-4">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+                                    <Calendar className="h-5 w-5" />
                                 </div>
-                            ) : (
-                                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="fullName">Full Name</Label>
-                                        <Input id="fullName" placeholder="John Doe" {...register('fullName')} />
-                                        {errors.fullName && <p className="text-sm text-red-500">{errors.fullName.message}</p>}
+                                <div>
+                                    <div className="text-sm text-muted-foreground font-medium">Date</div>
+                                    <div className="font-semibold text-foreground">{format(eventDate, 'EEEE, MMMM d, yyyy')}</div>
+                                </div>
+                            </div>
+
+                            <div className="w-px h-12 bg-border hidden sm:block"></div>
+
+                            <div className="flex items-center gap-4">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+                                    <Clock className="h-5 w-5" />
+                                </div>
+                                <div>
+                                    <div className="text-sm text-muted-foreground font-medium">Time</div>
+                                    <div className="font-semibold text-foreground">{format(eventDate, 'h:mm a')}</div>
+                                </div>
+                            </div>
+
+                            <div className="w-px h-12 bg-border hidden sm:block"></div>
+
+                            <div className="flex items-center gap-4">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+                                    <MapPin className="h-5 w-5" />
+                                </div>
+                                <div>
+                                    <div className="text-sm text-muted-foreground font-medium">Location</div>
+                                    <div className="font-semibold text-foreground">{event.event_type === 'online' ? 'Online Event' : event.location}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Description */}
+                        <div>
+                            <h3 className="text-2xl font-bold tracking-tight mb-6 flex items-center gap-2">
+                                <span className="w-8 h-1 bg-primary rounded-full inline-block"></span>
+                                About this event
+                            </h3>
+                            <div className="prose prose-lg dark:prose-invert max-w-none text-muted-foreground leading-relaxed">
+                                <p className="whitespace-pre-wrap">{event.description || 'No description provided for this event.'}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Right Column: Registration Form (Sticky) */}
+                    <div className="lg:mt-[-160px] relative z-20 animate-fade-in-up delay-200">
+                        <div className="sticky top-8 glass-card rounded-3xl overflow-hidden">
+                            <div className="p-8 border-b border-border/50 bg-background/50">
+                                <h2 className="text-2xl font-bold tracking-tight mb-2">Reserve a spot</h2>
+                                <p className="text-muted-foreground font-medium">
+                                    {isFull ? (
+                                        <span className="text-red-500 font-bold">This event is currently full.</span>
+                                    ) : (
+                                        `${event.capacity - event.current_registrations} spots remaining`
+                                    )}
+                                </p>
+                            </div>
+
+                            <div className="p-8 bg-background">
+                                {isFull ? (
+                                    <div className="p-5 bg-red-50 dark:bg-red-950/30 text-red-600 rounded-xl border border-red-100 dark:border-red-900 shadow-inner">
+                                        Registration is closed because the event has reached its total capacity.
                                     </div>
+                                ) : (
+                                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                                        <div className="space-y-4">
+                                            <div className="space-y-2 relative">
+                                                <Label htmlFor="fullName" className="text-sm font-semibold">Full Name</Label>
+                                                <Input id="fullName" placeholder="Jane Doe" className="h-12 bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary" {...register('fullName')} />
+                                                {errors.fullName && <p className="text-xs text-red-500 absolute -bottom-5">{errors.fullName.message}</p>}
+                                            </div>
 
-                                    <div className="space-y-2">
-                                        <Label htmlFor="email">Email Address</Label>
-                                        <Input id="email" type="email" placeholder="john@example.com" {...register('email')} />
-                                        {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
-                                    </div>
+                                            <div className="space-y-2 relative pt-2">
+                                                <Label htmlFor="email" className="text-sm font-semibold">Email Address</Label>
+                                                <Input id="email" type="email" placeholder="jane@company.com" className="h-12 bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary" {...register('email')} />
+                                                {errors.email && <p className="text-xs text-red-500 absolute -bottom-5">{errors.email.message}</p>}
+                                            </div>
 
-                                    <div className="space-y-2">
-                                        <Label htmlFor="phone">Phone Number (Optional)</Label>
-                                        <Input id="phone" type="tel" placeholder="+1 234 567 8900" {...register('phone')} />
-                                    </div>
+                                            <div className="space-y-2 relative pt-2">
+                                                <Label htmlFor="phone" className="text-sm font-semibold">Phone Number <span className="text-muted-foreground font-normal">(Optional)</span></Label>
+                                                <Input id="phone" type="tel" placeholder="+1 (555) 000-0000" className="h-12 bg-muted/50 border-0 focus-visible:ring-1 focus-visible:ring-primary" {...register('phone')} />
+                                            </div>
 
-                                    <div className="space-y-2">
-                                        <Label htmlFor="professionalStatus">Professional Status</Label>
-                                        <select
-                                            id="professionalStatus"
-                                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                                            {...register('professionalStatus')}
-                                        >
-                                            <option value="Student">Student</option>
-                                            <option value="Working Professional">Working Professional</option>
-                                            <option value="Entrepreneur">Entrepreneur</option>
-                                            <option value="Freelancer">Freelancer</option>
-                                            <option value="Other">Other</option>
-                                        </select>
-                                    </div>
+                                            <div className="space-y-2 pt-2">
+                                                <Label htmlFor="professionalStatus" className="text-sm font-semibold">Professional Status</Label>
+                                                <select
+                                                    id="professionalStatus"
+                                                    className="flex h-12 w-full rounded-md bg-muted/50 border-0 px-4 py-2 text-base ring-offset-background focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary cursor-pointer"
+                                                    {...register('professionalStatus')}
+                                                >
+                                                    <option value="Student">Student</option>
+                                                    <option value="Working Professional">Working Professional</option>
+                                                    <option value="Entrepreneur">Entrepreneur</option>
+                                                    <option value="Freelancer">Freelancer</option>
+                                                    <option value="Other">Other</option>
+                                                </select>
+                                            </div>
+                                        </div>
 
-                                    {error && <p className="text-sm text-red-500">{error}</p>}
+                                        {error && <div className="p-3 text-sm text-red-500 bg-red-50 dark:bg-red-950/50 rounded-md border border-red-200 dark:border-900 mt-2">{error}</div>}
 
-                                    <Button type="submit" className="w-full size-lg text-lg" disabled={registering}>
-                                        {registering ? 'Registering...' : 'Secure My Spot'}
-                                    </Button>
+                                        <Button type="submit" className="w-full h-14 text-lg font-bold rounded-xl shadow-xl shadow-primary/20 transition-all hover:-translate-y-1 hover:shadow-primary/40 mt-6" disabled={registering}>
+                                            {registering ? 'Processing...' : 'Secure My Spot'}
+                                        </Button>
 
-                                    <p className="text-xs text-center text-muted-foreground mt-4">
-                                        By registering, you agree to receive event updates.
-                                    </p>
-                                </form>
-                            )}
-                        </CardContent>
-                    </Card>
+                                        <p className="text-xs text-center text-muted-foreground mt-4 leading-relaxed max-w-[250px] mx-auto">
+                                            By registering, you agree to receive event updates and communications.
+                                        </p>
+                                    </form>
+                                )}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
