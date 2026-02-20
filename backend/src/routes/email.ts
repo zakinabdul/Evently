@@ -113,6 +113,35 @@ router.post('/schedule-attendance-request', async (req, res) => {
     }
 });
 
+// 3.5 SCHEDULE EVENT REMINDERS (Custom and 24h)
+router.post('/schedule-reminders', async (req, res) => {
+    try {
+        const { eventData, customMessage, timeBefore } = req.body;
+        console.log(`[Email Route] Scheduling reminders for event "${eventData.title}". Custom msg: ${!!customMessage}, Time before: ${timeBefore}`);
+
+        const results = [];
+
+        // 1. Schedule Custom Reminder if requested
+        if (customMessage && timeBefore) {
+            results.push(await inngest.send({
+                name: "event/reminder.custom",
+                data: {
+                    eventData,
+                    customMessage,
+                    timeBefore,
+                    // Note: registrants need to be fetched dynamically by the Inngest function
+                    // at the time of execution, not passed here, otherwise new registrants miss it.
+                }
+            }));
+        }
+
+        res.json({ success: true, message: "Reminders scheduled", results });
+    } catch (error: any) {
+        console.error("[Email Route] Failed to schedule reminders:", error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 // 3. AI GENERATION (Groq) - Removed template gen, using inline for welcome now
 // Keeping generic endpoint if needed for other things
 router.post('/generate-template', async (req, res) => {

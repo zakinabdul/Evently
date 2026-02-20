@@ -4,8 +4,12 @@ import { ReminderEmail } from "../emails/ReminderEmail";
 import { BroadcastEmail } from "../emails/BroadcastEmail";
 import { AttendanceRequestEmail } from "../emails/AttendanceRequestEmail";
 import { render } from "@react-email/components";
+import { createClient } from "@supabase/supabase-js";
 
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
+const supabaseUrl = process.env.VITE_SUPABASE_URL || "YOUR_SUPABASE_URL_HERE";
+const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || "YOUR_SUPABASE_KEY_HERE";
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 export const send24hrReminder = inngest.createFunction(
     { id: "send-24hr-reminder" },
@@ -51,27 +55,62 @@ export const sendCustomReminder = inngest.createFunction(
     { id: "send-custom-reminder" },
     { event: "event/reminder.custom" },
     async ({ event, step }: any) => {
-        const { eventData, registrants, customMessage, timeBefore } = event.data;
+        const { eventData, customMessage, timeBefore } = event.data;
+
+        await step.run("calculate-send-time", async () => {
+            console.log(`[Inngest] Scheduling custom reminder for event ${eventData.id}. Will send ${timeBefore} hours before ${eventData.start_date} ${eventData.start_time}`);
+        });
+
+        // Parse event datetime
+        const eventDateStr = `${eventData.start_date}T${eventData.start_time}:00`;
+        const eventDate = new Date(eventDateStr);
+
+        // Subtract hours
+        const sendDate = new Date(eventDate.getTime() - (timeBefore * 60 * 60 * 1000));
+
+        // Sleep until that time
+        await step.sleepUntil("wait-for-custom-reminder-time", sendDate);
+
+        // Fetch current registrants right before sending
+        const registrants = await step.run("fetch-registrants", async () => {
+            const { data, error } = await supabase
+                .from('registrations')
+                .select('*')
+                .eq('event_id', eventData.id)
+                .eq('status', 'registered');
+            // Only send to confirmed 'registered' users, not 'cancelled'
+
+            if (error) {
+                console.error("Failed to fetch registrants for custom reminder", error);
+                return [];
+            }
+            return data || [];
+        });
+
+        if (!registrants || registrants.length === 0) {
+            console.log(`[Inngest] No active registrants found for custom reminder (event ${eventData.id})`);
+            return { count: 0 };
+        }
 
         await step.run("send-custom-emails", async () => {
             const emailPromises = registrants.map(async (registrant: any) => {
                 const emailHtml = render(ReminderEmail({
                     registrantName: registrant.full_name,
                     eventTitle: eventData.title,
-                    eventDate: eventData.date,
-                    eventTime: eventData.time,
+                    eventDate: eventData.start_date,
+                    eventTime: eventData.start_time,
                     location: eventData.location,
                     isOnline: eventData.event_type === 'online',
                     meetingLink: eventData.meeting_link,
-                    daysUntilEvent: timeBefore, // e.g., "2 hours"
+                    daysUntilEvent: `${timeBefore} hours`,
                     customMessage: customMessage,
                     registrationId: registrant.id,
-                    frontendUrl: FRONTEND_URL
+                    frontendUrl: FRONTEND_URL // Will be the newly defined frontendUrl
                 }));
 
                 return sendEmail({
                     to: registrant.email,
-                    subject: `Reminder: ${eventData.title} starts in ${timeBefore}`,
+                    subject: `Reminder: ${eventData.title} starts in ${timeBefore} hours`,
                     html: emailHtml
                 });
             });

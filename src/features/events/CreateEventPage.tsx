@@ -72,9 +72,42 @@ export function CreateEventPage() {
                     slug,
                     organizer_id: user.id
                 }
-            ])
+            ]).select().single()
 
             if (error) throw error
+
+            const createdEvent = eventData;
+            createdEvent.id = slug; // Just for logging/reference, actual ID is handled by Supabase
+
+            // Schedule Reminders automatically on creation
+            if (customReminderHours || send24hReminder) {
+                try {
+                    await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001'}/api/email/schedule-reminders`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            eventData: {
+                                ...eventData,
+                                id: slug, // Approximation for the backend to use
+                                title: eventData.title,
+                                start_date: eventData.start_date,
+                                start_time: eventData.start_time,
+                                location: eventData.location,
+                                event_type: eventData.event_type,
+                                meeting_link: eventData.location,
+                                send_24h_reminder: send24hReminder
+                            },
+                            customMessage: reminderNote || "",
+                            timeBefore: customReminderHours
+                        })
+                    });
+                } catch (apiError) {
+                    console.error("Failed to schedule reminders:", apiError);
+                }
+            }
+
             navigate('/dashboard')
         } catch (err: any) {
             setError(err.message || 'Failed to create event')

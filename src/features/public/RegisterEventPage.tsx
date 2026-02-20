@@ -104,7 +104,7 @@ export function RegisterEventPage() {
                 .select('id')
                 .eq('event_id', event.id)
                 .eq('email', data.email)
-                .single()
+                .maybeSingle()
 
             if (existing) {
                 throw new Error('You are already registered for this event with this email.')
@@ -319,9 +319,9 @@ export function RegisterEventPage() {
                     </div>
 
                     {/* Right Column: Registration Form (Sticky) */}
-                    <div className="lg:mt-[-160px] relative z-20 animate-fade-in-up delay-200">
-                        <div className="sticky top-8 glass-card rounded-3xl overflow-hidden">
-                            <div className="p-8 border-b border-border/50 bg-background/50">
+                    <div className="lg:-mt-24 relative z-20 animate-fade-in-up delay-200">
+                        <div className="sticky top-8 rounded-3xl overflow-hidden bg-background border border-border/50 shadow-[0_0_50px_-12px_rgba(79,70,229,0.25)] ring-1 ring-black/5 dark:ring-white/10 dark:shadow-[0_0_50px_-12px_rgba(99,102,241,0.15)]">
+                            <div className="p-8 border-b border-border/50 bg-muted/20 backdrop-blur-md">
                                 <h2 className="text-2xl font-bold tracking-tight mb-2">Reserve a spot</h2>
                                 <p className="text-muted-foreground font-medium">
                                     {isFull ? (
