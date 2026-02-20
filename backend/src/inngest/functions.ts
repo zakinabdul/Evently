@@ -15,7 +15,7 @@ export const send24hrReminder = inngest.createFunction(
     { id: "send-24hr-reminder" },
     { event: "event/reminder.24hr" },
     async ({ event, step }: any) => {
-        const { eventData, registrants } = event.data;
+        const { eventData } = event.data;
 
         // Check if 24h reminder is enabled for this event
         if (!eventData.send_24h_reminder) {
@@ -23,13 +23,52 @@ export const send24hrReminder = inngest.createFunction(
             return { skipped: true };
         }
 
+        // Calculate 24 hours before event
+        let eventDateStr = eventData.local_start_iso || `${eventData.start_date}T${eventData.start_time}:00`;
+        let eventDate = new Date(eventDateStr);
+        if (isNaN(eventDate.getTime())) {
+            eventDate = new Date(`${eventData.start_date} ${eventData.start_time}`);
+        }
+
+        let sendDate = new Date();
+        if (!isNaN(eventDate.getTime())) {
+            sendDate = new Date(eventDate.getTime() - (24 * 60 * 60 * 1000));
+        }
+
+        if (isNaN(sendDate.getTime()) || sendDate.getTime() < Date.now()) {
+            console.log(`[Inngest] 24h Send date is invalid or in the past (${sendDate}). Executing immediately.`);
+        } else {
+            console.log(`[Inngest] Sleeping until ${sendDate} for 24h reminder of ${eventData.title}`);
+            await step.sleepUntil("wait-for-24h", sendDate);
+        }
+
+        // Wake up and fetch registrants
+        const registrants = await step.run("fetch-registrants", async () => {
+            const { data, error } = await supabase
+                .from('registrations')
+                .select('*')
+                .eq('event_id', eventData.id)
+                .eq('status', 'registered');
+
+            if (error) {
+                console.error("Failed to fetch registrants for 24h reminder", error);
+                return [];
+            }
+            return data || [];
+        });
+
+        if (!registrants || registrants.length === 0) {
+            console.log(`[Inngest] No active registrants found for 24h reminder (event ${eventData.id})`);
+            return { count: 0 };
+        }
+
         await step.run("send-emails-batch", async () => {
             const emailPromises = registrants.map(async (registrant: any) => {
                 const emailHtml = render(ReminderEmail({
                     registrantName: registrant.full_name,
                     eventTitle: eventData.title,
-                    eventDate: eventData.date, // Formatted already
-                    eventTime: eventData.time,
+                    eventDate: eventData.start_date,
+                    eventTime: eventData.start_time,
                     location: eventData.location,
                     isOnline: eventData.event_type === 'online',
                     meetingLink: eventData.meeting_link,
@@ -111,7 +150,7 @@ export const scheduleAttendanceRequest = inngest.createFunction(
         });
 
         // Parse event datetime robustly
-        let eventDateStr = `${eventData.start_date}T${eventData.start_time}:00`;
+        let eventDateStr = eventData.local_start_iso || `${eventData.start_date}T${eventData.start_time}:00`;
         // if the date is just YYYY-MM-DD there is no timezone component, JS will assume local time.
         // It's safer to explicitly treat it as standard ISO
         let eventDate = new Date(eventDateStr);

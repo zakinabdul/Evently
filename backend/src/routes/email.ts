@@ -117,7 +117,16 @@ router.post('/schedule-attendance-request', async (req, res) => {
 router.post('/schedule-reminders', async (req, res) => {
     try {
         const { eventData } = req.body;
-        console.log(`[Email Route] Scheduling reminders for event "${eventData.title}". (handled by creation)`);
+        console.log(`[Email Route] Scheduling 24hr reminder for event "${eventData.title}". enabled: ${eventData.send_24h_reminder}`);
+
+        if (eventData.send_24h_reminder) {
+            await inngest.send({
+                name: "event/reminder.24hr",
+                data: {
+                    eventData
+                }
+            });
+        }
 
         res.json({ success: true, message: "Reminders scheduled" });
     } catch (error: any) {

@@ -156,7 +156,10 @@ export function RegisterEventPage() {
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            eventData: event,
+                            eventData: {
+                                ...event,
+                                local_start_iso: new Date(`${event.start_date}T${event.start_time}:00`).toISOString(),
+                            },
                             registrant: newRegistration,
                             frontendUrl: window.location.origin
                         })
