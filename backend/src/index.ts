@@ -5,7 +5,7 @@ import express from 'express';
 import cors from 'cors';
 import { serve } from "inngest/express";
 import { inngest } from "./inngest/client";
-import { send24hrReminder, sendCustomReminder, sendBroadcastEmail, scheduleAttendanceRequest } from "./inngest/functions";
+import { send24hrReminder, sendBroadcastEmail, scheduleAttendanceRequest } from "./inngest/functions";
 import emailRoutes from './routes/email';
 
 const app = express();
@@ -21,7 +21,7 @@ app.use(
         client: inngest,
         functions: [
             send24hrReminder,
-            sendCustomReminder,
+
             sendBroadcastEmail,
             scheduleAttendanceRequest
         ],

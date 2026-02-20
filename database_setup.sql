@@ -1,11 +1,6 @@
 -- Add send_24h_reminder column to events table
 ALTER TABLE events
 ADD COLUMN IF NOT EXISTS send_24h_reminder boolean DEFAULT false;
-
--- 1. Add slug column to events table
-alter table public.events 
-add column if not exists slug text;
-
 -- 2. Add unique constraint to slug
 alter table public.events 
 add constraint events_slug_key unique (slug);

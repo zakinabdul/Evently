@@ -51,76 +51,6 @@ export const send24hrReminder = inngest.createFunction(
     }
 );
 
-export const sendCustomReminder = inngest.createFunction(
-    { id: "send-custom-reminder" },
-    { event: "event/reminder.custom" },
-    async ({ event, step }: any) => {
-        const { eventData, customMessage, timeBefore } = event.data;
-
-        await step.run("calculate-send-time", async () => {
-            console.log(`[Inngest] Scheduling custom reminder for event ${eventData.id}. Will send ${timeBefore} hours before ${eventData.start_date} ${eventData.start_time}`);
-        });
-
-        // Parse event datetime
-        const eventDateStr = `${eventData.start_date}T${eventData.start_time}:00`;
-        const eventDate = new Date(eventDateStr);
-
-        // Subtract hours
-        const sendDate = new Date(eventDate.getTime() - (timeBefore * 60 * 60 * 1000));
-
-        // Sleep until that time
-        await step.sleepUntil("wait-for-custom-reminder-time", sendDate);
-
-        // Fetch current registrants right before sending
-        const registrants = await step.run("fetch-registrants", async () => {
-            const { data, error } = await supabase
-                .from('registrations')
-                .select('*')
-                .eq('event_id', eventData.id)
-                .eq('status', 'registered');
-            // Only send to confirmed 'registered' users, not 'cancelled'
-
-            if (error) {
-                console.error("Failed to fetch registrants for custom reminder", error);
-                return [];
-            }
-            return data || [];
-        });
-
-        if (!registrants || registrants.length === 0) {
-            console.log(`[Inngest] No active registrants found for custom reminder (event ${eventData.id})`);
-            return { count: 0 };
-        }
-
-        await step.run("send-custom-emails", async () => {
-            const emailPromises = registrants.map(async (registrant: any) => {
-                const emailHtml = render(ReminderEmail({
-                    registrantName: registrant.full_name,
-                    eventTitle: eventData.title,
-                    eventDate: eventData.start_date,
-                    eventTime: eventData.start_time,
-                    location: eventData.location,
-                    isOnline: eventData.event_type === 'online',
-                    meetingLink: eventData.meeting_link,
-                    daysUntilEvent: `${timeBefore} hours`,
-                    customMessage: customMessage,
-                    registrationId: registrant.id,
-                    frontendUrl: FRONTEND_URL // Will be the newly defined frontendUrl
-                }));
-
-                return sendEmail({
-                    to: registrant.email,
-                    subject: `Reminder: ${eventData.title} starts in ${timeBefore} hours`,
-                    html: emailHtml
-                });
-            });
-
-            await Promise.all(emailPromises);
-            return { count: registrants.length };
-        });
-    }
-);
-
 export const sendBroadcastEmail = inngest.createFunction(
     { id: "send-broadcast-email" },
     { event: "event/broadcast" },
@@ -180,15 +110,35 @@ export const scheduleAttendanceRequest = inngest.createFunction(
             console.log(`[Inngest] Registered for event ${eventData.id}. Will send confirmation request ${eventData.confirmation_email_hours} hours before ${eventData.start_date} ${eventData.start_time}`);
         });
 
-        // Parse event datetime. Assumes eventData.start_date is YYYY-MM-DD and start_time is HH:MM
-        const eventDateStr = `${eventData.start_date}T${eventData.start_time}:00`;
-        const eventDate = new Date(eventDateStr);
+        // Parse event datetime robustly
+        let eventDateStr = `${eventData.start_date}T${eventData.start_time}:00`;
+        // if the date is just YYYY-MM-DD there is no timezone component, JS will assume local time.
+        // It's safer to explicitly treat it as standard ISO
+        let eventDate = new Date(eventDateStr);
+        if (isNaN(eventDate.getTime())) {
+            // Fallback parsing strategy if standard ISO parsing failed
+            eventDate = new Date(`${eventData.start_date} ${eventData.start_time}`);
+        }
 
-        // Subtract hours
-        const sendDate = new Date(eventDate.getTime() - (eventData.confirmation_email_hours * 60 * 60 * 1000));
+        let sendDate = new Date(); // fallback to 'now'
 
-        // Sleep until that time
-        await step.sleepUntil("wait-for-confirmation-time", sendDate);
+        // Ensure confirmation_email_hours is a number
+        const hoursBefore = Number(eventData.confirmation_email_hours) || 0;
+
+        if (!isNaN(eventDate.getTime()) && hoursBefore > 0) {
+            // Subtract hours
+            sendDate = new Date(eventDate.getTime() - (hoursBefore * 60 * 60 * 1000));
+        }
+
+        // Failsafe: if sendDate is for some reason still invalid, or is in the past, sleepUntil skips it.
+        // But if the Date object is literally 'Invalid Date', Inngest throws an error.
+        if (isNaN(sendDate.getTime()) || sendDate.getTime() < Date.now()) {
+            console.log(`[Inngest] Send date is invalid or in the past (${sendDate}). Skipping sleep.`);
+            // No sleep, will execute immediately
+        } else {
+            // Sleep until that time
+            await step.sleepUntil("wait-for-confirmation-time", sendDate);
+        }
 
         // Send the email
         await step.run("send-attendance-request-email", async () => {

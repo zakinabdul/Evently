@@ -113,29 +113,13 @@ router.post('/schedule-attendance-request', async (req, res) => {
     }
 });
 
-// 3.5 SCHEDULE EVENT REMINDERS (Custom and 24h)
+// 3.5 SCHEDULE EVENT REMINDERS (24h only now)
 router.post('/schedule-reminders', async (req, res) => {
     try {
-        const { eventData, customMessage, timeBefore } = req.body;
-        console.log(`[Email Route] Scheduling reminders for event "${eventData.title}". Custom msg: ${!!customMessage}, Time before: ${timeBefore}`);
+        const { eventData } = req.body;
+        console.log(`[Email Route] Scheduling reminders for event "${eventData.title}". (handled by creation)`);
 
-        const results = [];
-
-        // 1. Schedule Custom Reminder if requested
-        if (customMessage && timeBefore) {
-            results.push(await inngest.send({
-                name: "event/reminder.custom",
-                data: {
-                    eventData,
-                    customMessage,
-                    timeBefore,
-                    // Note: registrants need to be fetched dynamically by the Inngest function
-                    // at the time of execution, not passed here, otherwise new registrants miss it.
-                }
-            }));
-        }
-
-        res.json({ success: true, message: "Reminders scheduled", results });
+        res.json({ success: true, message: "Reminders scheduled" });
     } catch (error: any) {
         console.error("[Email Route] Failed to schedule reminders:", error);
         res.status(500).json({ success: false, error: error.message });

@@ -34,7 +34,7 @@ export function EmailsTab({ eventId, eventTitle }: EmailsTabProps) {
 
     useEffect(() => {
         // Fetch event settings
-        supabase.from('events').select('send_24h_reminder, custom_reminder_hours, confirmation_email_hours').eq('id', eventId).single()
+        supabase.from('events').select('send_24h_reminder, confirmation_email_hours').eq('id', eventId).single()
             .then(({ data }) => {
                 if (data) setEventSettings(data);
             });
@@ -175,7 +175,7 @@ export function EmailsTab({ eventId, eventTitle }: EmailsTabProps) {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">
-                            {(eventSettings?.send_24h_reminder ? 1 : 0) + (eventSettings?.custom_reminder_hours ? 1 : 0)}
+                            {(eventSettings?.send_24h_reminder ? 1 : 0)}
                         </div>
                         <p className="text-xs text-muted-foreground">Upcoming reminders</p>
                     </CardContent>
@@ -210,20 +210,7 @@ export function EmailsTab({ eventId, eventTitle }: EmailsTabProps) {
                             </div>
                         )}
 
-                        {eventSettings?.custom_reminder_hours && (
-                            <div className="flex items-center justify-between border-b pb-4">
-                                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-                                    <div className="bg-primary/10 p-2 rounded-full w-fit">
-                                        <Clock className="h-4 w-4 text-primary" />
-                                    </div>
-                                    <div>
-                                        <p className="font-medium">Custom Reminder</p>
-                                        <p className="text-sm text-muted-foreground">Scheduled for {eventSettings.custom_reminder_hours} hours before event</p>
-                                    </div>
-                                </div>
-                                <span className="text-sm bg-green-100 text-green-700 px-2 py-1 rounded whitespace-nowrap">Active</span>
-                            </div>
-                        )}
+
 
                         {eventSettings?.confirmation_email_hours > 0 && (
                             <div className="flex items-center justify-between border-b pb-4">
@@ -240,7 +227,7 @@ export function EmailsTab({ eventId, eventTitle }: EmailsTabProps) {
                             </div>
                         )}
 
-                        {!eventSettings?.send_24h_reminder && !eventSettings?.custom_reminder_hours && (!eventSettings?.confirmation_email_hours || eventSettings?.confirmation_email_hours === 0) && (
+                        {!eventSettings?.send_24h_reminder && (!eventSettings?.confirmation_email_hours || eventSettings?.confirmation_email_hours === 0) && (
                             <p className="text-sm text-muted-foreground text-center py-4">No reminders scheduled.</p>
                         )}
                     </div>

@@ -19,7 +19,6 @@ const createEventSchema = z.object({
     start_date: z.string(),
     start_time: z.string(),
     capacity: z.string().transform(val => parseInt(val, 10)).pipe(z.number().min(1, 'Capacity must be at least 1')),
-    customReminderHours: z.string().transform(val => val ? parseInt(val, 10) : undefined).optional(),
     reminderNote: z.string().optional(),
     send24hReminder: z.boolean().default(false),
     requiresAttendanceConfirmation: z.boolean().default(false),
@@ -60,12 +59,11 @@ export function CreateEventPage() {
             }
 
             // Extract and map fields
-            const { customReminderHours, reminderNote, send24hReminder, requiresAttendanceConfirmation, confirmationEmailHours, ...eventData } = data;
+            const { reminderNote, send24hReminder, requiresAttendanceConfirmation, confirmationEmailHours, ...eventData } = data;
 
             const { error } = await supabase.from('events').insert([
                 {
                     ...eventData,
-                    custom_reminder_hours: customReminderHours,
                     reminder_note: reminderNote,
                     send_24h_reminder: send24hReminder,
                     confirmation_email_hours: requiresAttendanceConfirmation ? confirmationEmailHours : 0,
@@ -77,7 +75,7 @@ export function CreateEventPage() {
             if (error) throw error
 
             // Schedule Reminders automatically on creation
-            if (customReminderHours || send24hReminder) {
+            if (send24hReminder) {
                 try {
                     await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001'}/api/email/schedule-reminders`, {
                         method: 'POST',
@@ -96,8 +94,7 @@ export function CreateEventPage() {
                                 meeting_link: eventData.location,
                                 send_24h_reminder: send24hReminder
                             },
-                            customMessage: reminderNote || "",
-                            timeBefore: customReminderHours
+                            customMessage: reminderNote || ""
                         })
                     });
                 } catch (apiError) {
@@ -199,10 +196,6 @@ export function CreateEventPage() {
                                 <div>
                                     <h3 className="font-semibold text-foreground mb-4 block">Email Reminders</h3>
                                     <div className="space-y-4">
-                                        <div className="space-y-3">
-                                            <Label htmlFor="customReminderHours" className="text-sm font-medium">Custom Reminder (Hours before)</Label>
-                                            <Input id="customReminderHours" type="number" placeholder="e.g. 2" className="h-10 max-w-[150px] bg-background border-border" {...register('customReminderHours')} />
-                                        </div>
 
                                         <label className="flex items-start space-x-3 cursor-pointer group">
                                             <div className="relative flex items-center pt-1">
