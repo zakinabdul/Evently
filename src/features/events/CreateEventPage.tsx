@@ -76,9 +76,6 @@ export function CreateEventPage() {
 
             if (error) throw error
 
-            const createdEvent = eventData;
-            createdEvent.id = slug; // Just for logging/reference, actual ID is handled by Supabase
-
             // Schedule Reminders automatically on creation
             if (customReminderHours || send24hReminder) {
                 try {

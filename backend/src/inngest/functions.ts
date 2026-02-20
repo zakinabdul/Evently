@@ -7,8 +7,8 @@ import { render } from "@react-email/components";
 import { createClient } from "@supabase/supabase-js";
 
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
-const supabaseUrl = process.env.VITE_SUPABASE_URL || "YOUR_SUPABASE_URL_HERE";
-const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || "YOUR_SUPABASE_KEY_HERE";
+const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || "https://placeholder.supabase.co";
+const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_KEY || "placeholder";
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export const send24hrReminder = inngest.createFunction(
