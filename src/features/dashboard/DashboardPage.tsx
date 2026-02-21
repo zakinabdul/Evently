@@ -11,6 +11,21 @@ export function DashboardPage() {
     const { signOut } = useAuth()
     const { events, loading, error, deleteEvent } = useEvents()
 
+    const now = new Date();
+    // Use yesterday as the threshold so events happening today still show as upcoming
+    const thresholdDate = new Date(now);
+    thresholdDate.setDate(thresholdDate.getDate() - 1);
+
+    const upcomingEvents = events.filter(e => {
+        const eventDate = new Date(`${e.start_date}T${e.start_time}`);
+        return isNaN(eventDate.getTime()) ? true : eventDate > thresholdDate;
+    });
+
+    const pastEvents = events.filter(e => {
+        const eventDate = new Date(`${e.start_date}T${e.start_time}`);
+        return isNaN(eventDate.getTime()) ? false : eventDate <= thresholdDate;
+    });
+
     return (
         <div className="p-8 lg:p-12 max-w-7xl mx-auto space-y-10 animate-fade-in-up">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white/40 dark:bg-zinc-900/40 p-6 rounded-2xl border border-white/20 dark:border-white/5 shadow-sm backdrop-blur-md">
@@ -51,15 +66,35 @@ export function DashboardPage() {
             )}
 
             {!loading && !error && events.length > 0 && (
-                <div className="space-y-6">
-                    <h2 className="text-2xl font-bold tracking-tight">Your Upcoming Events</h2>
-                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                        {events.map((event, index) => (
-                            <div key={event.id} className="animate-fade-in-up" style={{ animationDelay: `${index * 50}ms` }}>
-                                <EventCard event={event} onDelete={deleteEvent} />
+                <div className="space-y-12">
+                    {upcomingEvents.length > 0 && (
+                        <div className="space-y-6">
+                            <h2 className="text-2xl font-bold tracking-tight">Your Upcoming Events</h2>
+                            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                                {upcomingEvents.map((event, index) => (
+                                    <div key={event.id} className="animate-fade-in-up" style={{ animationDelay: `${index * 50}ms` }}>
+                                        <EventCard event={event} onDelete={deleteEvent} />
+                                    </div>
+                                ))}
                             </div>
-                        ))}
-                    </div>
+                        </div>
+                    )}
+
+                    {pastEvents.length > 0 && (
+                        <div className="space-y-6 pt-6 border-t border-border/50">
+                            <div className="flex items-center justify-between">
+                                <h2 className="text-xl font-semibold tracking-tight text-muted-foreground">Past Events</h2>
+                                <span className="text-sm text-muted-foreground bg-muted/50 px-3 py-1 rounded-full">{pastEvents.length} completed</span>
+                            </div>
+                            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 opacity-80 hover:opacity-100 transition-opacity">
+                                {pastEvents.map((event, index) => (
+                                    <div key={event.id} className="animate-fade-in-up" style={{ animationDelay: `${index * 50}ms` }}>
+                                        <EventCard event={event} onDelete={deleteEvent} />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
             )}
         </div>

@@ -32,7 +32,10 @@ export function useDashboardStats() {
                 const totalRegistrations = events?.reduce((acc, curr) => acc + (curr.current_registrations || 0), 0) || 0
 
                 const now = new Date()
-                const upcomingEvents = events?.filter(e => new Date(e.start_date) >= now).length || 0
+                const upcomingEvents = events?.filter(e => {
+                    const eventDate = e.start_date ? new Date(e.start_date) : new Date();
+                    return eventDate >= now || eventDate.toDateString() === now.toDateString();
+                }).length || 0
 
                 const totalCapacity = events?.reduce((acc, curr) => acc + (curr.capacity || 0), 0) || 0
                 const capacityUtilization = totalCapacity > 0 ? (totalRegistrations / totalCapacity) * 100 : 0
