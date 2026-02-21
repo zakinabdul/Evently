@@ -35,10 +35,11 @@ export function useDashboardStats() {
                 const now = new Date();
 
                 const upcomingEvents = events?.filter(e => {
-                    if (!e.start_date) return true;
-                    // Provide a default 00:00 time if missing so we can parse a valid Date
-                    const eventDate = new Date(`${e.start_date}T${e.start_time || "00:00"}:00`);
-                    return isNaN(eventDate.getTime()) ? true : eventDate > now;
+                    if (!e.start_date) return false;
+                    // Supabase time often includes seconds like '10:00:00'. Safely limit it to HH:mm
+                    const timeString = e.start_time ? e.start_time.substring(0, 5) : "00:00";
+                    const eventDate = new Date(`${e.start_date}T${timeString}:00`);
+                    return isNaN(eventDate.getTime()) ? false : eventDate > now;
                 }).length || 0
 
                 const totalCapacity = events?.reduce((acc, curr) => acc + (curr.capacity || 0), 0) || 0

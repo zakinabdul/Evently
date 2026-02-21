@@ -14,20 +14,32 @@ export function DashboardPage() {
     const now = new Date();
 
     const upcomingEvents = events.filter(e => {
-        const eventDate = new Date(`${e.start_date}T${e.start_time}`);
-        return isNaN(eventDate.getTime()) ? true : eventDate > now;
+        if (!e.start_date) return false;
+        const timeString = e.start_time ? e.start_time.substring(0, 5) : "00:00";
+        const eventDate = new Date(`${e.start_date}T${timeString}:00`);
+        return isNaN(eventDate.getTime()) ? false : eventDate > now;
     });
 
     const pastEvents = events.filter(e => {
-        const eventDate = new Date(`${e.start_date}T${e.start_time}`);
-        return isNaN(eventDate.getTime()) ? false : eventDate <= now;
+        if (!e.start_date) return true;
+        const timeString = e.start_time ? e.start_time.substring(0, 5) : "00:00";
+        const eventDate = new Date(`${e.start_date}T${timeString}:00`);
+        return isNaN(eventDate.getTime()) ? true : eventDate <= now;
     });
 
     // Sort upcoming events chronologically (soonest first)
-    const sortedUpcoming = [...upcomingEvents].sort((a, b) => new Date(`${a.start_date}T${a.start_time}`).getTime() - new Date(`${b.start_date}T${b.start_time}`).getTime());
+    const sortedUpcoming = [...upcomingEvents].sort((a, b) => {
+        const timeA = a.start_time ? a.start_time.substring(0, 5) : "00:00";
+        const timeB = b.start_time ? b.start_time.substring(0, 5) : "00:00";
+        return new Date(`${a.start_date}T${timeA}:00`).getTime() - new Date(`${b.start_date}T${timeB}:00`).getTime();
+    });
 
     // Sort past events reverse-chronologically (most recently finished first)
-    const sortedPast = [...pastEvents].sort((a, b) => new Date(`${b.start_date}T${b.start_time}`).getTime() - new Date(`${a.start_date}T${a.start_time}`).getTime());
+    const sortedPast = [...pastEvents].sort((a, b) => {
+        const timeA = a.start_time ? a.start_time.substring(0, 5) : "00:00";
+        const timeB = b.start_time ? b.start_time.substring(0, 5) : "00:00";
+        return new Date(`${b.start_date}T${timeB}:00`).getTime() - new Date(`${a.start_date}T${timeA}:00`).getTime();
+    });
 
     return (
         <div className="p-8 lg:p-12 max-w-7xl mx-auto space-y-10 animate-fade-in-up">
