@@ -11,6 +11,7 @@ import { CreateEventPage } from "./features/events/CreateEventPage"
 import { EventStatsPage } from "./features/stats/EventStatsPage"
 import { AttendanceConfirmedPage } from "./features/public/AttendanceConfirmedPage"
 import { Toaster } from "@/components/ui/sonner"
+import { Analytics } from "@vercel/analytics/react"
 
 function App() {
     return (
@@ -40,6 +41,7 @@ function App() {
                 <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>
             <Toaster position="top-right" richColors />
+            <Analytics />
         </AuthProvider>
     )
 }
