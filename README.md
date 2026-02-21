@@ -51,8 +51,7 @@ BREVO_API_KEY=your_brevo_api_key
 We have provided the initialization SQL script inside the `sql/` directory.
 1. Open your Supabase Dashboard.
 2. Go to the **SQL Editor**.
-3. Paste the contents of `sql/database_setup.sql` and click **Run**.
-*(Note: the `sql/` directory is git-ignored to prevent accidental commits of sensitive database schema experiments)*
+3. Paste the contents of `sql/database_setup.sql` and click **Run`.
 
 ### 4. Installation & Start
 
