@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useNavigate } from 'react-router-dom'
+import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -106,7 +107,8 @@ export function CreateEventPage() {
 
             navigate('/dashboard')
         } catch (err: any) {
-            setError(err.message || 'Failed to create event')
+            console.error("Supabase Error during Event Creation:", err);
+            setError(err.message || JSON.stringify(err) || 'Failed to create event. Please check browser console.')
         } finally {
             setLoading(false)
         }
@@ -115,6 +117,10 @@ export function CreateEventPage() {
     return (
         <div className="p-8 lg:p-12 max-w-4xl mx-auto space-y-10 animate-fade-in-up">
             <div className="space-y-2">
+                <Button type="button" variant="ghost" className="mb-4 -ml-4 text-muted-foreground hover:text-foreground" onClick={() => navigate(-1)}>
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back
+                </Button>
                 <h1 className="text-4xl font-extrabold tracking-tight text-foreground">Create New Event</h1>
                 <p className="text-muted-foreground text-lg">Set up your next amazing experience.</p>
             </div>

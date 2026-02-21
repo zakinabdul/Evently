@@ -9,7 +9,7 @@ import { Plus } from "lucide-react"
 
 export function DashboardPage() {
     const { signOut } = useAuth()
-    const { events, loading, error } = useEvents()
+    const { events, loading, error, deleteEvent } = useEvents()
 
     return (
         <div className="p-8 lg:p-12 max-w-7xl mx-auto space-y-10 animate-fade-in-up">
@@ -56,7 +56,7 @@ export function DashboardPage() {
                     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                         {events.map((event, index) => (
                             <div key={event.id} className="animate-fade-in-up" style={{ animationDelay: `${index * 50}ms` }}>
-                                <EventCard event={event} />
+                                <EventCard event={event} onDelete={deleteEvent} />
                             </div>
                         ))}
                     </div>

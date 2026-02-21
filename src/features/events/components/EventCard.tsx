@@ -1,5 +1,5 @@
 
-import { Calendar, MapPin, Users, Copy, ArrowRight } from 'lucide-react'
+import { Calendar, MapPin, Users, Copy, ArrowRight, Trash2 } from 'lucide-react'
 import { format } from 'date-fns'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
@@ -10,9 +10,10 @@ import { toast } from 'sonner'
 
 interface EventCardProps {
     event: Event
+    onDelete?: (eventId: string) => Promise<boolean>
 }
 
-export function EventCard({ event }: EventCardProps) {
+export function EventCard({ event, onDelete }: EventCardProps) {
     const eventDate = new Date(`${event.start_date}T${event.start_time}`)
 
     const copyLink = () => {
@@ -71,6 +72,21 @@ export function EventCard({ event }: EventCardProps) {
                 </div>
             </CardContent>
             <CardFooter className="grid grid-cols-2 gap-3 pt-4 border-t bg-muted/20">
+                {onDelete && (
+                    <Button variant="outline" size="sm" onClick={async () => {
+                        if (confirm('Are you sure you want to delete this event? This action cannot be undone.')) {
+                            try {
+                                await onDelete(event.id);
+                                toast.success('Event deleted successfully');
+                            } catch (e) {
+                                toast.error('Failed to delete event');
+                            }
+                        }
+                    }} className="col-span-2 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/50">
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete Event
+                    </Button>
+                )}
                 <Button variant="outline" size="sm" onClick={copyLink} className="w-full bg-background hover:bg-muted font-medium">
                     <Copy className="mr-2 h-4 w-4" />
                     Copy Link

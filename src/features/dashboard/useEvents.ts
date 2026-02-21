@@ -45,5 +45,17 @@ export function useEvents() {
         fetchEvents()
     }, [user])
 
-    return { events, loading, error }
+    const deleteEvent = async (eventId: string) => {
+        try {
+            const { error } = await supabase.from('events').delete().eq('id', eventId)
+            if (error) throw error
+            setEvents(prev => prev.filter(e => e.id !== eventId))
+            return true
+        } catch (err: any) {
+            console.error("Error deleting event:", err)
+            throw err
+        }
+    }
+
+    return { events, loading, error, deleteEvent, refreshEvents: () => user && setEvents([]) } // Note: A full refresh wrapper can be added if needed, but local state update is cleaner.
 }
