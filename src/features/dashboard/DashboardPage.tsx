@@ -12,19 +12,22 @@ export function DashboardPage() {
     const { events, loading, error, deleteEvent } = useEvents()
 
     const now = new Date();
-    // Use yesterday as the threshold so events happening today still show as upcoming
-    const thresholdDate = new Date(now);
-    thresholdDate.setDate(thresholdDate.getDate() - 1);
 
     const upcomingEvents = events.filter(e => {
         const eventDate = new Date(`${e.start_date}T${e.start_time}`);
-        return isNaN(eventDate.getTime()) ? true : eventDate > thresholdDate;
+        return isNaN(eventDate.getTime()) ? true : eventDate > now;
     });
 
     const pastEvents = events.filter(e => {
         const eventDate = new Date(`${e.start_date}T${e.start_time}`);
-        return isNaN(eventDate.getTime()) ? false : eventDate <= thresholdDate;
+        return isNaN(eventDate.getTime()) ? false : eventDate <= now;
     });
+
+    // Sort upcoming events chronologically (soonest first)
+    const sortedUpcoming = [...upcomingEvents].sort((a, b) => new Date(`${a.start_date}T${a.start_time}`).getTime() - new Date(`${b.start_date}T${b.start_time}`).getTime());
+
+    // Sort past events reverse-chronologically (most recently finished first)
+    const sortedPast = [...pastEvents].sort((a, b) => new Date(`${b.start_date}T${b.start_time}`).getTime() - new Date(`${a.start_date}T${a.start_time}`).getTime());
 
     return (
         <div className="p-8 lg:p-12 max-w-7xl mx-auto space-y-10 animate-fade-in-up">
@@ -67,11 +70,11 @@ export function DashboardPage() {
 
             {!loading && !error && events.length > 0 && (
                 <div className="space-y-12">
-                    {upcomingEvents.length > 0 && (
+                    {sortedUpcoming.length > 0 && (
                         <div className="space-y-6">
                             <h2 className="text-2xl font-bold tracking-tight">Your Upcoming Events</h2>
                             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                                {upcomingEvents.map((event, index) => (
+                                {sortedUpcoming.map((event, index) => (
                                     <div key={event.id} className="animate-fade-in-up" style={{ animationDelay: `${index * 50}ms` }}>
                                         <EventCard event={event} onDelete={deleteEvent} />
                                     </div>
@@ -80,14 +83,14 @@ export function DashboardPage() {
                         </div>
                     )}
 
-                    {pastEvents.length > 0 && (
+                    {sortedPast.length > 0 && (
                         <div className="space-y-6 pt-6 border-t border-border/50">
                             <div className="flex items-center justify-between">
                                 <h2 className="text-xl font-semibold tracking-tight text-muted-foreground">Past Events</h2>
-                                <span className="text-sm text-muted-foreground bg-muted/50 px-3 py-1 rounded-full">{pastEvents.length} completed</span>
+                                <span className="text-sm text-muted-foreground bg-muted/50 px-3 py-1 rounded-full">{sortedPast.length} completed</span>
                             </div>
                             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 opacity-80 hover:opacity-100 transition-opacity">
-                                {pastEvents.map((event, index) => (
+                                {sortedPast.map((event, index) => (
                                     <div key={event.id} className="animate-fade-in-up" style={{ animationDelay: `${index * 50}ms` }}>
                                         <EventCard event={event} onDelete={deleteEvent} />
                                     </div>

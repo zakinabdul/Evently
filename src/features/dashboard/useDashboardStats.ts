@@ -31,10 +31,13 @@ export function useDashboardStats() {
                 const totalEvents = events?.length || 0
                 const totalRegistrations = events?.reduce((acc, curr) => acc + (curr.current_registrations || 0), 0) || 0
 
-                const now = new Date()
+                const startOfToday = new Date();
+                startOfToday.setHours(0, 0, 0, 0);
+
                 const upcomingEvents = events?.filter(e => {
-                    const eventDate = e.start_date ? new Date(e.start_date) : new Date();
-                    return eventDate >= now || eventDate.toDateString() === now.toDateString();
+                    if (!e.start_date) return true;
+                    const eventDate = new Date(`${e.start_date}T00:00:00`);
+                    return isNaN(eventDate.getTime()) ? true : eventDate >= startOfToday;
                 }).length || 0
 
                 const totalCapacity = events?.reduce((acc, curr) => acc + (curr.capacity || 0), 0) || 0
